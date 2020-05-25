@@ -60,12 +60,12 @@ plot_GGMtest(ggm_model,edges = edgeset_1)
 
 ![alt text](https://github.com/SvenKlaassen/GGMtest/blob/master/plots/confidence_intervals_1.png "Confidence Intervals")
 
-Next lets take a look at a more complex example by increasing `n = 2500` and `p = 25`. This time we will add all egdes for inference and plot the network.
+Next lets take a look at a more complex example by increasing `n = 2500` and `p = 25`. This time we will add all egdes (300 since the graph is undirected) for inference and plot the network. 
 ```R
-L <- huge.generator(n = n, d = p, graph = "random")
+L <- huge.generator(n = 2500, d = 25, graph = "random")
 
 # all indices for inference
-edgeset_2 <- t(combn(p,2))
+edgeset_2 <- t(combn(25,2))
 ggm_model_2 <- GGMtest(L$data,edgeset_2, alpha = 0.05,nuisance_estimaton ="lasso")
 
 # true Graph
@@ -74,13 +74,13 @@ graph_layout <- layout.circle
 #graph_layout <- layout.fruchterman.reingold
 true_adj_matrix <- as.matrix(L$theta)
 true_graph <- graph_from_adjacency_matrix(true_adj_matrix , mode='undirected', diag=F )
-plot(true_graph, usearrows = FALSE, vertex.label=1:p,displaylabels=T,main = "True Graph",
+plot(true_graph, usearrows = FALSE, vertex.label=1:25, displaylabels=T, main = "True Graph",
      layout= graph_layout,edge.color = "black",edge.width = 2)
 
 # estimated graph
 est_adj_matrix <- adj_GGMtest(ggm_model_2)
 est_graph <- igraph::graph_from_adjacency_matrix(est_adj_matrix , mode='undirected', diag=F )
-plot(est_graph, usearrows = FALSE, vertex.label=1:p,displaylabels=T,main = "Estimated Graph",
+plot(est_graph, usearrows = FALSE, vertex.label=1:25, displaylabels=T, main = "Estimated Graph",
      layout= graph_layout,edge.color = "black",edge.width = 2)
 
 #calculation matrix difference
@@ -88,7 +88,7 @@ diff_matrix <- true_adj_matrix - est_adj_matrix
 diff_graph <- igraph::graph_from_adjacency_matrix(diff_matrix  , mode='undirected', diag=F, weighted = T)
 E(diff_graph)$color[E(diff_graph)$weight == 1] <- "blue"
 E(diff_graph)$color[E(diff_graph)$weight == -1] <- "red"
-plot(diff_graph, usearrows = FALSE, vertex.label=1:p,displaylabels=T,main = "Graph Differences",
+plot(diff_graph, usearrows = FALSE, vertex.label=1:25, displaylabels=T, main = "Graph Differences",
      layout= graph_layout,edge.width = 2)
 legend(x=-1.5, y=-1.1, c("False Positive","False Negative"), pch=21,
        col="#777777", pt.bg=c("red","blue"), pt.cex=2, cex=.8, bty="n", ncol=1)
