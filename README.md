@@ -18,7 +18,7 @@ install_github("SvenKlaassen/GGMtest")
 
 ## Examples
 
-As a small example simulate an example with \code{n = 100} observations of \code{p = 10} dimensional multivariate normal distribution.
+As a small example simulate an example with \R{n = 100} observations of \code{p = 10} dimensional multivariate normal distribution.
 
 ```R
 rm(list=ls())
