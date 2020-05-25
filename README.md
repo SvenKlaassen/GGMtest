@@ -98,7 +98,7 @@ par(mfrow=c(1,1))
 ![alt text](https://github.com/SvenKlaassen/GGMtest/blob/master/plots/example_large_1.png "Estimated GGM")
 
 ## Application
-A small application from psychology. For documentation of the
+A small application from psychology. The  `bfi` dataset contains `n = 2800` oberservations of 25 personality self report intems. For a documentation on the covariables see `bfi` in the `psych` package.
 ```R
 library("psych")
 library("dplyr")
