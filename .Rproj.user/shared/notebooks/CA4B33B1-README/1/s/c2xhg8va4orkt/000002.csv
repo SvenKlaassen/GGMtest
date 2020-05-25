@@ -1,0 +1,36 @@
+"0","rm(list=ls())"
+"0",""
+"0","library(""huge"")"
+"0","library(""igraph"")"
+"2","
+Attache Paket: ‘igraph’
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    decompose, spectrum
+
+"
+"2","The following object is masked from ‘package:base’:
+
+    union
+
+"
+"0","library(""GGMtest"")"
+"0",""
+"0","set.seed(42)"
+"0",""
+"0","# generate data (different graph structures: ""random"", ""hub"", ""cluster"", ""band"" and ""scale-free"") "
+"0","L <- huge.generator(n = 100, d = 10, graph = ""cluster"", g = 4) "
+"1","Generating data from the multivariate normal distribution with the"
+"1"," "
+"1","cluster"
+"1"," "
+"1","graph structure...."
+"1","done.
+"
+"0","# true Graph"
+"0","true_graph <- graph_from_adjacency_matrix(as.matrix(L$theta), mode='undirected', diag=F)"
+"0",""
+"0","plot(true_graph, usearrows = FALSE, label=1:10, displaylabels=T, main = ""True Graph"","
+"0","     layout= layout.fruchterman.reingold, edge.width = 2, edge.color = ""black"")"
