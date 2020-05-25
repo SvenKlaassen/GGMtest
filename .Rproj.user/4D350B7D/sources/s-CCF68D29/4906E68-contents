@@ -5,15 +5,15 @@ GGMtest <- function(data = X,
                     edges = S,
                     beta_0 = rep(0,dim(S)[1]),
                     alpha = 0.05,
-                    nbootstrap = 100,
+                    nbootstrap = 500,
                     nuisance_estimaton = "lasso",
                     s = 1,
                     exponent = 1,
                     penalty = list(c = 1.1),
                     k_fold = 1,
                     rnd_seed = NULL) {
-  X <- as.matrix(X)
-  S <- as.matrix(S)
+  X <- as.matrix(data)
+  S <- as.matrix(edges)
   n <- dim(X)[1]
   p <- dim(X)[2]
 

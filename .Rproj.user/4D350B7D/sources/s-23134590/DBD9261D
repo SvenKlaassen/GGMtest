@@ -1,24 +1,24 @@
 {
     "collab_server" : "",
     "contents" : "",
-    "created" : 1590390620366.000,
+    "created" : 1590394786624.000,
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "0",
-    "id" : "4906E68",
+    "hash" : "1460010096",
+    "id" : "DBD9261D",
     "lastKnownWriteTime" : 1590394874,
-    "last_content_update" : 1590394874,
+    "last_content_update" : 1590394874863,
     "path" : "D:/GitHub/GGMtest/R/GGMtest.R",
     "project_path" : "R/GGMtest.R",
     "properties" : {
-        "cursorPosition" : "0,78",
-        "scrollLine" : "76"
+        "cursorPosition" : "7,34",
+        "scrollLine" : "0"
     },
     "read_only" : false,
     "read_only_alternatives" : [
     ],
-    "relative_order" : 5,
+    "relative_order" : 3,
     "source_on_save" : false,
     "source_window" : "",
     "type" : "r_source"
