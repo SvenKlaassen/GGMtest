@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1590388584629.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "ED11FAF0",
+    "lastKnownWriteTime" : 1590389018,
+    "last_content_update" : 1590389018188,
+    "path" : "D:/GitHub/GGMtest/R/create_adjency_matrix.R",
+    "project_path" : "R/create_adjency_matrix.R",
+    "properties" : {
+        "cursorPosition" : "3,18",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

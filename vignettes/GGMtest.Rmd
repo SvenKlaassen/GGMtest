@@ -1,0 +1,15 @@
+---
+title: "GGMtest"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{demo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+```{r}
+library(GGMtest)
+hello()
+```

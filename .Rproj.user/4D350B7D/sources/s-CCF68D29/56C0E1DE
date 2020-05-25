@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1590386269284.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "56C0E1DE",
+    "lastKnownWriteTime" : 1590389950,
+    "last_content_update" : 1590389950464,
+    "path" : "D:/GitHub/GGMtest/vignettes/GGMtest.Rmd",
+    "project_path" : "vignettes/GGMtest.Rmd",
+    "properties" : {
+        "cursorPosition" : "9,0",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
