@@ -2,10 +2,21 @@
 % Please edit documentation in R/confidence_intervals.R
 \name{confint.GGMtest}
 \alias{confint.GGMtest}
-\title{Create the confidence intervals for a GGMtest object}
+\title{Create the confidence intervals for a GGMtest object.}
 \usage{
-\method{confint}{GGMtest}(object)
+\method{confint}{GGMtest}(object, ...)
+}
+\arguments{
+\item{object}{GGMtest Object}
+
+\item{...}{Other arguments passed on to methods. Not currently used.}
+}
+\value{
+Returns a dataframe with confidence intervals for each edge.
 }
 \description{
-Create the confidence intervals for a GGMtest object
+Only usable for s=1.
+}
+\seealso{
+\code{\link{GGMtest}}
 }

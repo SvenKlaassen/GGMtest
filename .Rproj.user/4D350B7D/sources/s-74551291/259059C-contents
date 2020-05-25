@@ -1,6 +1,4 @@
-#' Plot confidence intervals for GGMtest objects
-#'
-#' Only usable for s=1 or s=2 and exponent=2.
+#' Plot confidence intervals for GGMtest object for s=1 or s=2 and exponent=2.
 #'
 #' @importFrom rlang .data
 #'
@@ -8,7 +6,7 @@
 #' @param edges List of edges to plot. Ignores other edges which were not tested in the object.
 #' @param ... Other arguments passed on to methods. Not currently used.
 #'
-#' @seealso \code{\link{GGMtest}}
+#'
 #' @export
 
 plot_GGMtest <- function(object, edges = object$edge_list[1,],...){

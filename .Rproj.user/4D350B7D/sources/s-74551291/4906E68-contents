@@ -1,6 +1,4 @@
-#' GGMtest
-#'
-#' Testing conditional independence hypothesis for a gaussian graphical model.
+#' Estimates conditional independence hypothsis for a Gaussian Graphical Model.
 #'
 #' @param data Dataset: either matrix or dataframe
 #' @param edges Matrix of edges for testing: each row specifies an edge
@@ -17,7 +15,7 @@
 #' @return A list with components
 #' \item{estimates}{A vector of point estimates.}
 #' \item{edge_list}{The matrix containing the corresponding edges (equal to input).}
-#' \item{pvalue_max}{P-value of the hypothesis.}
+#' \item{ pvalue_max}{P-value of the hypothesis.}
 #' \item{hyp_max}{Maximum statistic of the hypothesis.}
 #'
 #' @examples
@@ -45,13 +43,7 @@
 #'
 #' # plot the confidence intervals (on a subset of edges)
 #' plot_GGMtest(ggm_model,edges = S)
-#'
-#' @seealso \code{\link{confint.GGMtest}} for confidence intervals, \code{\link{plot_GGMtest}} for plotting options
-#'  and \code{\link{adj_GGMtest}} for the adjacency matrix
-#'
 #' @export
-#'
-#'
 
 GGMtest <- function(data = X,
                     edges = S,

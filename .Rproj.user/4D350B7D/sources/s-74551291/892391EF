@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1590402076845.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "892391EF",
+    "lastKnownWriteTime" : 1590409520,
+    "last_content_update" : 1590409520074,
+    "path" : "D:/GitHub/GGMtest/R/confidence_intervals.R",
+    "project_path" : "R/confidence_intervals.R",
+    "properties" : {
+        "cursorPosition" : "2,3",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

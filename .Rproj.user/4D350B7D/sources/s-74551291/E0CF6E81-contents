@@ -1,0 +1,34 @@
+rm(list=ls())
+
+library("huge")
+library("igraph")
+library("GGMtest")
+
+set.seed(42)
+
+# generate data (different graph structures: "random", "hub", "cluster", "band" and "scale-free") 
+L <- huge.generator(n = 100, d = 40, graph = "cluster", g = 4) 
+# true Graph
+true_graph <- graph_from_adjacency_matrix(as.matrix(L$theta), mode='undirected', diag=F)
+par(mfrow = c(1,1))
+plot(true_graph, usearrows = FALSE, label=1:10, displaylabels=T, main = "True Graph",
+     layout= layout.fruchterman.reingold, edge.width = 2, edge.color = "black")
+
+
+# index pairs for inference
+S <- matrix(c(1,2,
+              2,3,
+              4,5), byrow = T, ncol = 2)
+
+# perform test:
+ggm_model <- GGMtest(data = L$data,
+                     edges = S,
+                     alpha = 0.05,
+                     nuisance_estimaton = "lasso")
+
+# p-value:                     
+ggm_model$pvalue_max
+
+# plot the confidence intervals (on a subset of edges)
+plot_GGMtest(ggm_model,edges = S)
+
