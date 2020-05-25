@@ -39,7 +39,7 @@ plot(true_graph, usearrows = FALSE, label=1:10, displaylabels=T, main = "True Gr
 
 ```
 
-![alt text](https://github.com/SvenKlaassen/GGMtest/blob/master/plots/True_Graph_1.png "True Graph")
+![alt text](https://github.com/SvenKlaassen/GGMtest/blob/master/plots/true_graph_1.png "True Graph")
 
 ```R
 # index pairs for inference
@@ -95,7 +95,7 @@ legend(x=-1.5, y=-1.1, c("False Positive","False Negative"), pch=21,
 
 par(mfrow=c(1,1))
 ```
-![alt text](https://github.com/SvenKlaassen/GGMtest/blob/master/plots/confidence_intervals_1.png "Estimated GGM")
+![alt text](https://github.com/SvenKlaassen/GGMtest/blob/master/plots/example_large_1.png "Estimated GGM")
 
 ## Application
 A small application from psychology. For documentation of the
