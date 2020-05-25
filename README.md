@@ -39,7 +39,7 @@ plot(true_graph, usearrows = FALSE, label=1:10, displaylabels=T, main = "True Gr
 
 ```
 
-![alt text](https://github.com/SvenKlaassen/GGMtest/blob/master/plots/true_graph_1.png "True Graph")
+![alt text](https://github.com/SvenKlaassen/GGMtest/blob/master/plots/True_Graph_1.png "True Graph")
 
 ```R
 # index pairs for inference
