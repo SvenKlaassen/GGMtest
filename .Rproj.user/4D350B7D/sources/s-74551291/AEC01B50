@@ -5,14 +5,14 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "368628487",
+    "hash" : "0",
     "id" : "AEC01B50",
-    "lastKnownWriteTime" : 1590409510,
-    "last_content_update" : 1590409510226,
+    "lastKnownWriteTime" : 1590413142,
+    "last_content_update" : 1590413142857,
     "path" : "D:/GitHub/GGMtest/R/adj_GGMtest.R",
     "project_path" : "R/adj_GGMtest.R",
     "properties" : {
-        "cursorPosition" : "1,2",
+        "cursorPosition" : "22,0",
         "scrollLine" : "0"
     },
     "read_only" : false,

@@ -16,6 +16,7 @@ adj_GGMtest <- function(object){
 
   adj_mat <- matrix(F,nrow = object$additional_parameters$p, ncol = object$additional_parameters$p)
   invisible(apply(rejected_hyp,1,function(x) adj_mat[x[1],x[2]] <<- T))
+  invisible(apply(rejected_hyp,1,function(x) adj_mat[x[2],x[1]] <<- T))
   return(adj_mat)
 }
 
