@@ -18,7 +18,7 @@ install_github("SvenKlaassen/GGMtest")
 
 ## Examples
 
-As a small example simulate an example with \R{n = 100} observations of \code{p = 10} dimensional multivariate normal distribution.
+As a small example simulate an example with `n = 100` observations of `p = 10` dimensional multivariate normal distribution.
 
 ```R
 rm(list=ls())
@@ -60,7 +60,7 @@ plot_GGMtest(ggm_model,edges = S)
 
 ![alt text](https://github.com/SvenKlaassen/GGMtest/blob/master/plots/confidence_intervals_1.png "True Graph")
 
-Next lets take a look at a more complex example by increasing \code{n = 2500} and \code{p = 25}.
+Next lets take a look at a more complex example by increasing `n = 2500` and `p = 25`.
 
 ## Application
 
