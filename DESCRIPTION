@@ -1,6 +1,6 @@
 Package: GGMtest
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Hypothesis Testing for Gaussian Graphical Models
 Version: 0.1.0
 Author: Who wrote it
 Maintainer: The package maintainer <yourself@somewhere.net>
