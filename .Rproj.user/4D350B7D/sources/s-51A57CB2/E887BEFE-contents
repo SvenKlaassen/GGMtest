@@ -10,8 +10,8 @@ library(igraph)
 
 set.seed(42)
 #### generate data ####
-n <- 200  # number of observations
-p <- 20   # dimension of the gaussian vector
+n <- 50  # number of observations
+p <- 12   # dimension of the gaussian vector
 l <- 200   # number of independent Monte-Carlo Estimation
 
 
@@ -50,8 +50,7 @@ for (h in 1:l){
                        null_hyp =0,
                        alpha = 0.1,
                        nbootstrap = 500,
-                       nuisance_estimaton = "sqrt-lasso",
-                       method = 'partialling out',
+                       nuisance_estimaton = "lasso",
                        s=1,
                        exponent=1,
                        k_fold = 1,

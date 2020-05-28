@@ -7,7 +7,8 @@
 #' @param null_hyp A vector of null hypothesis values for the coefficients: Default is 0 for conditional independence
 #' @param alpha Provides a value for the level of the test
 #' @param nbootstrap Number of repetitions for the bootstrap procedure
-#' @param nuisance_estimaton Method for nuisance parameter estimation from "lasso", "post-lasso" or "sqrt-lasso"
+#' @param nuisance_estimaton Method for nuisance parameter estimation from 'lasso', 'post-lasso' or 'sqrt-lasso'
+#' @param method Method for point estimation, either 'partialling out' or 'root'
 #' @param s Number of variables combined for the confidence interval. Default is s = 1.
 #' @param exponent Exponent for the confidence interval. Default is exponent = 1.
 #' @param penalty Additional coefficient for the penalty term. Default value is c = 1.1.
@@ -58,11 +59,12 @@ GGMtest <- function(data = X,
                     null_hyp = 0,
                     alpha = 0.05,
                     nbootstrap = 500,
-                    nuisance_estimaton = "lasso",
+                    nuisance_estimaton = 'lasso',
                     s = 1,
                     exponent = 1,
                     penalty = list(c = 1.1),
                     k_fold = 1,
+                    method = 'partialling out',
                     rnd_seed = NULL) {
   X <- as.matrix(data)
   S <- as.matrix(edges)
@@ -79,6 +81,7 @@ GGMtest <- function(data = X,
 
   checkmate::checkNumeric(alpha,0,1)
   checkmate::checkChoice(nuisance_estimaton, c("lasso","post-lasso","sqrt-lasso"))
+  checkmate::checkChoice(method, c('partialling out','root'))
 
   if (dim(S)[2] != 2){
     stop("Invalid argument: S has to be a matrix with 2 columns.")
@@ -148,8 +151,6 @@ GGMtest <- function(data = X,
     lambda_1 <- penalty$c*1/(2*sqrt(n1))*stats::qnorm(1-gamma/(2*p1*max((p-1),n1))) #penalty term eta one
     lambda_2 <- penalty$c*1/(2*sqrt(n1))*stats::qnorm(1-gamma/(2*p1*max((p-2),n1))) #penalty term eta two
 
-    count <- 1
-
     #### Estimation (includes elements for variance estimation) ####
 
     for (i in block1){ # estimation relevant coefficients
@@ -162,12 +163,12 @@ GGMtest <- function(data = X,
       } else if (nuisance_estimaton == "sqrt-lasso") {
         r1 <- picasso::picasso(X1,Y1, family="sqrtlasso",lambda = lambda_1)$beta[,1]
       }
-
-      indexi <- match(i,block1)
-
-      block2 <- S[,2][(sum(as.matrix(table(S[,1]))[0:(indexi-1)])+1):sum(as.matrix(table(S[,1]))[1:(indexi)])]
+      #get the corresponding indices
+      block2 <- S[,2][S[,1]== i]
 
       for (j in block2){
+
+        index <- prodlim::row.match(c(i,j),S)
 
         Y2 <- X[sample1_index,j]
         X2 <- X[sample1_index,-c(i,j)]
@@ -186,15 +187,18 @@ GGMtest <- function(data = X,
           c1 <- 0
         }
 
-        pred1[count,1:n2,num_fold] <- X[sample2_index,i]- X[sample2_index,-c(i,j)]%*%r1[-(j+c1)]
+        pred1[index,1:n2,num_fold] <- X[sample2_index,i]- X[sample2_index,-c(i,j)]%*%r1[-(j+c1)]
 
-        pred2[count,1:n2,num_fold] <- X[sample2_index,j]- X[sample2_index,-c(i,j)]%*%r2 #j=k
+        pred2[index,1:n2,num_fold] <- X[sample2_index,j]- X[sample2_index,-c(i,j)]%*%r2 #j=k
 
         #### Estimator ####
-
-        beta1 <- stats::uniroot(function(x) mean(Score(x,X[sample2_index,j],pred1[count,1:n2,num_fold],pred2[count,1:n2,num_fold])),interval = c(-10,10))
-        beta_mat[count,num_fold] <- beta1$root
-        count = count+1
+        if (method == 'partialling out'){
+          #partialling out (first order equivalent)
+          beta1 <- stats::lm(pred1[index,1:n2,num_fold]~pred2[index,1:n2,num_fold])$coefficients[2]
+        } else if (method == 'root'){
+          beta1 <- stats::uniroot(function(x) mean(Score(x,X[sample2_index,j],pred1[index,1:n2,num_fold],pred2[index,1:n2,num_fold])),interval = c(-10,10))$root
+        }
+        beta_mat[index,num_fold] <- beta1
       }
     }
   }
@@ -216,18 +220,11 @@ GGMtest <- function(data = X,
     n1 <- length(sample1_index)
     n2 <- length(sample2_index)
 
-    count <- 1  # set count back to 1
     for (i in block1){
-
-      indexi <- match(i,block1)
-
-      block2 <- S[,2][(sum(as.matrix(table(S[,1]))[0:(indexi-1)])+1):sum(as.matrix(table(S[,1]))[1:(indexi)])]
-
+      block2 <- S[,2][S[,1]== i]
       for (j in block2){
-
-        Gamma[count,num_fold] <- mean((-X[sample2_index,j])*pred2[count,1:n2,num_fold])
-
-        count = count+1
+        index <- prodlim::row.match(c(i,j),S)
+        Gamma[index,num_fold] <- mean((-X[sample2_index,j])*pred2[index,1:n2,num_fold])
       }
     }
   }
@@ -248,19 +245,15 @@ GGMtest <- function(data = X,
     n1 <- length(sample1_index)
     n2 <- length(sample2_index)
     score_square <-array(NA,dim=c(p1,n2))
-    count <- 1
+
     for (i in block1){
-
-      indexi <- match(i,block1)
-
-      block2 <- S[,2][(sum(as.matrix(table(S[,1]))[0:(indexi-1)])+1):sum(as.matrix(table(S[,1]))[1:(indexi)])]
+      block2 <- S[,2][S[,1]== i]
 
       for (j in block2){
+        index <- prodlim::row.match(c(i,j),S)
 
-        score_square[count,] <- (Score(beta_vec[count],X[sample2_index,j],pred1[count,1:n2,num_fold],pred2[count,1:n2,num_fold]))^2
-        sigma_est[count,num_fold] <- sqrt(mean(Gamma_vec[count]^(-2)*score_square[count,]))
-
-        count = count+1
+        score_square[index,] <- (Score(beta_vec[index],X[sample2_index,j],pred1[index,1:n2,num_fold],pred2[index,1:n2,num_fold]))^2
+        sigma_est[index,num_fold] <- sqrt(mean(Gamma_vec[index]^(-2)*score_square[index,]))
       }
     }
   }
@@ -283,18 +276,14 @@ GGMtest <- function(data = X,
     n1 <- length(sample1_index)
     n2 <- length(sample2_index)
     score_square <-array(NA,dim=c(p1,n2)) # drop!
-    count <- 1
+
     for (i in block1){
-
-      indexi <- match(i,block1)
-
-      block2 <- S[,2][(sum(as.matrix(table(S[,1]))[0:(indexi-1)])+1):sum(as.matrix(table(S[,1]))[1:(indexi)])]
+      block2 <- S[,2][S[,1]== i]
 
       for (j in block2){
+        index <- prodlim::row.match(c(i,j),S)
+        psi_est[index,1:n2,num_fold] <- -(sigma_vec[index]*Gamma_vec[index])^(-1)*Score(beta_vec[index],X[sample2_index,j],pred1[index,1:n2,num_fold],pred2[index,1:n2,num_fold])
 
-        psi_est[count,1:n2,num_fold] <- -(sigma_vec[count]*Gamma_vec[count])^(-1)*Score(beta_vec[count],X[sample2_index,j],pred1[count,1:n2,num_fold],pred2[count,1:n2,num_fold])
-
-        count = count+1
       }
     }
   }
@@ -305,14 +294,13 @@ GGMtest <- function(data = X,
   dist_est <- array(NA,dim= c(p1,nbootstrap))
 
   for (b in 1:nbootstrap){
-    for (j in 1:p1){
-      if (num_drop == 0){
-        epsilon <- matrix(stats::rnorm(n+k_fold),byrow=F,ncol=k_fold)
-      } else {
-        epsilon <- matrix(stats::rnorm(ceiling(n/k_fold)*k_fold),byrow=F,ncol=k_fold)
-      }
-      dist_est[j,b] <- n^(-1/2)*sum(epsilon*psi_est[j,,],na.rm = T)
+    if (num_drop == 0){
+      epsilon <- matrix(stats::rnorm(n+k_fold),byrow=F,ncol=k_fold)
+    } else {
+      epsilon <- matrix(stats::rnorm(ceiling(n/k_fold)*k_fold),byrow=F,ncol=k_fold)
     }
+    dist_est[,b] <- apply(psi_est,1,function(x) n^(-1/2) * sum(epsilon * x, na.rm = T))
+    #for (j in 1:p1){dist_est[j,b] <- n^(-1/2)*sum(epsilon*psi_est[j,,],na.rm = T)}
   }
 
   #### Hypotheses Testing ####

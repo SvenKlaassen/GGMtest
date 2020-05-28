@@ -18,11 +18,11 @@ nu_est <- "lasso"   # method for nuisance estimation including (lasso,post-lasso
 
 #### Estimating a whole simulated network ####
 
-# generate data 
+# generate data
 n <- 2000  # number of observations
 p <- 25   # dimension of the gaussian vector
 L <- huge.generator(n = n, d = p, v = .3, graph = "cluster", g = 4) #different graph structures including "random", "hub", "cluster", "band" and "scale-free".
-L <- huge.generator(n = n, d = p, v = .1, graph = "random", prob = .3)
+L <- huge.generator(n = n, d = p, v = .1, graph = "random")
 # all indices for inference
 S_1 <- t(combn(p,2))
 ggm_model_1 <- GGMtest(L$data,S_1,rep(0,dim(S_1)[1]), s=s, exponent=exponent, alpha = alpha, nbootstrap = nboot,
@@ -32,7 +32,7 @@ ggm_model_1 <- GGMtest(L$data,S_1,rep(0,dim(S_1)[1]), s=s, exponent=exponent, al
 plot(ggm_model_1,edges = S_1[1:5,])
 # true Graph
 par(mfrow=c(1,3))
-graph_layout <- layout.circle 
+graph_layout <- layout.circle
 #graph_layout <- layout.fruchterman.reingold
 true_adj_matrix <- as.matrix(L$theta)
 true_graph <- graph_from_adjacency_matrix(true_adj_matrix , mode='undirected', diag=F )
@@ -46,7 +46,7 @@ plot(est_graph, usearrows = FALSE, vertex.label=1:p,displaylabels=T,main = "Esti
      layout= graph_layout,edge.color = "black",edge.width = 2)
 
 #calculation matrix difference
-diff_matrix <- true_adj_matrix - est_adj_matrix 
+diff_matrix <- true_adj_matrix - est_adj_matrix
 diff_graph <- igraph::graph_from_adjacency_matrix(diff_matrix  , mode='undirected', diag=F, weighted = T)
 E(diff_graph)$color[E(diff_graph)$weight == 1] <- "blue"
 E(diff_graph)$color[E(diff_graph)$weight == -1] <- "red"
@@ -69,7 +69,7 @@ df <- bfi %>%
   select(1:25) %>%
   na.omit() %>%
   apply(2,function(x) x-mean(x))
-  
+
 cat("Dimensions:",dim(df))
 
 # Select indices for inference

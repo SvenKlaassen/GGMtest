@@ -1,0 +1,106 @@
+rm(list=ls())
+package_list <- c("devtools","network","mvtnorm","stats","huge","tictoc",
+                  "rootSolve","MASS","ggplot2","igraph","tidyverse", "GGMtest")
+invisible(lapply(package_list, library, character.only = TRUE))
+
+set.seed(42)
+
+
+#### parameters for estimation ####
+k_fold <- 1         # k-fold estimation
+seed <- 42          # seed for replicability
+alpha <- 0.05        # significance level
+nboot <- 1000       # number of bootstrap repetitions
+s <- 1              # s-sparse set for inference
+exponent <- 1       # exponent for CI
+nu_est <- "lasso"   # method for nuisance estimation including (lasso,post-lasso and sqrt-lasso)
+
+#### Estimating a whole simulated network ####
+n_vec <- seq(100,1000, by = 100)
+p <- 15   # dimension of the gaussian vector
+R <- 20
+f_1_ggm_mat <- matrix(NA,nrow = length(n_vec), ncol = R)
+f_1_glasso_mat <- matrix(NA,nrow = length(n_vec), ncol = R)
+
+mcc_ggm_mat <- matrix(NA,nrow = length(n_vec), ncol = R)
+mcc_glasso_mat <- matrix(NA,nrow = length(n_vec), ncol = R)
+
+for (r in 1:R){
+  ggmtest_mat <- matrix(NA,nrow = length(n_vec), ncol = 4)
+  colnames(ggmtest_mat) <-  c("FN","FP","TN","TP" )
+  glasso_mat <- matrix(NA,nrow = length(n_vec), ncol = 4)
+  colnames(glasso_mat) <-   c("FN","FP","TN","TP" )
+  for (n in n_vec){
+    index <- match(n,n_vec)
+    # generate data
+    #L <- huge.generator(n = n, d = p, v = .3, graph = "cluster", g = 4) #different graph structures including "random", "hub", "cluster", "band" and "scale-free".
+    L <- huge.generator(n = n, d = p, v = .3, graph = "random", prob = .3)
+    # all indices for inference
+    upper_triangle <- t(combn(p,2))
+    S <- upper_triangle
+    ggm_model <- GGMtest(L$data,S,rep(0,dim(S)[1]), s=s, exponent=exponent, alpha = alpha, nbootstrap = nboot,
+                         nuisance_estimaton = nu_est,k_fold = k_fold,rnd_seed = seed)
+
+    #true Graph
+    true_adj_matrix <- as.matrix(L$theta)
+
+    # estimated graph
+    est_adj_matrix <- adj_GGMtest(ggm_model)
+    #calculation matrix difference
+    diff_matrix <- true_adj_matrix - est_adj_matrix
+
+    ggmtest_mat[index,] <- .5*c(sum(diff_matrix == 1),
+                                sum(diff_matrix == -1),
+                                sum(true_adj_matrix == 0 & est_adj_matrix == 0) - p,
+                                sum(true_adj_matrix == 1 & est_adj_matrix == 1))
+
+    #Using G-Lasso
+    out.glasso = huge(L$data, method = "glasso")
+    #model selection using ebic
+    out.select = huge.select(out.glasso,criterion = "ric")
+    glasso_adj <- out.select$opt.icov != 0
+
+    #calculation matrix difference
+    glasso_diff_matrix <- true_adj_matrix - glasso_adj
+
+    glasso_mat[index,] <-.5*c(sum(glasso_diff_matrix == 1),
+                              sum(glasso_diff_matrix == -1),
+                              sum(true_adj_matrix == 0 & glasso_adj == 0) - p,
+                              sum(true_adj_matrix == 1 & glasso_adj == 1))
+  }
+
+  # plotting the f_1 score
+
+  f_1_ggm_mat[,r] <- apply(ggmtest_mat,1, function(x) 2*x["TP"]/(2*x["TP"]+x["FN"]+x["FP"]))
+  f_1_glasso_mat[,r] <- apply(glasso_mat,1, function(x) 2*x["TP"]/(2*x["TP"]+x["FN"]+x["FP"]))
+
+  mcc_ggm_mat[,r] <- apply(ggmtest_mat,1, function(x) (x["TP"]*x["TN"]-x["FP"]*x["FN"])/sqrt((x["TP"]+x["FP"])*(x["TP"]+x["FN"])*(x["TN"]+x["FP"])*(x["TN"]+x["FN"])))
+  mcc_glasso_mat[,r] <- apply(glasso_mat,1, function(x) (x["TP"]*x["TN"]-x["FP"]*x["FN"])/sqrt((x["TP"]+x["FP"])*(x["TP"]+x["FN"])*(x["TN"]+x["FP"])*(x["TN"]+x["FN"])))
+
+}
+
+f_1_ggm <- data.frame(f_1 = apply(f_1_ggm_mat,1,mean))
+f_1_glasso <- data.frame(f_1 = apply(f_1_glasso_mat,1,mean))
+
+mcc_ggm <- data.frame(MCC = apply(mcc_ggm_mat,1,mean))
+mcc_glasso <- data.frame(MCC = apply(mcc_glasso_mat,1,mean))
+
+df <- rbind(f_1_ggm,f_1_glasso) %>%
+  mutate(type = rep(c("GGMtest","GLasso"),each = length(n_vec)),
+         n = rep(n_vec,2))
+
+ggplot(df, aes(x = n, y = f_1, col = type)) +
+  geom_line(linetype = "dashed") +
+  geom_point()
+
+
+df <- rbind(mcc_ggm,mcc_glasso) %>%
+  mutate(type = rep(c("GGMtest","GLasso"),each = length(n_vec)),
+         n = rep(n_vec,2))
+
+ggplot(df, aes(x = n, y = MCC, col = type)) +
+  geom_line(linetype = "dashed") +
+  geom_point()
+
+
+
