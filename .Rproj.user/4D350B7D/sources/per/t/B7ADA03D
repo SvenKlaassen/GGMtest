@@ -5,15 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "0",
+    "hash" : "3829439865",
     "id" : "B7ADA03D",
-    "lastKnownWriteTime" : 1590657895,
-    "last_content_update" : 1590657895406,
+    "lastKnownWriteTime" : 1590658729,
+    "last_content_update" : 1590658729549,
     "path" : "D:/GitHub/GGMtest/R/GGMtest.R",
     "project_path" : "R/GGMtest.R",
     "properties" : {
-        "cursorPosition" : "193,27",
-        "scrollLine" : "0"
+        "cursorPosition" : "66,31",
+        "scrollLine" : "52"
     },
     "read_only" : false,
     "read_only_alternatives" : [

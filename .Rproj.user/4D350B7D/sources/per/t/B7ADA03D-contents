@@ -60,11 +60,11 @@ GGMtest <- function(data = X,
                     alpha = 0.05,
                     nbootstrap = 500,
                     nuisance_estimaton = 'lasso',
+                    method = 'partialling out',
                     s = 1,
                     exponent = 1,
                     penalty = list(c = 1.1),
                     k_fold = 1,
-                    method = 'partialling out',
                     rnd_seed = NULL) {
   X <- as.matrix(data)
   S <- as.matrix(edges)

@@ -11,11 +11,11 @@ GGMtest(
   alpha = 0.05,
   nbootstrap = 500,
   nuisance_estimaton = "lasso",
+  method = "partialling out",
   s = 1,
   exponent = 1,
   penalty = list(c = 1.1),
   k_fold = 1,
-  method = "partialling out",
   rnd_seed = NULL
 )
 }
@@ -32,6 +32,8 @@ GGMtest(
 
 \item{nuisance_estimaton}{Method for nuisance parameter estimation from 'lasso', 'post-lasso' or 'sqrt-lasso'}
 
+\item{method}{Method for point estimation, either 'partialling out' or 'root'}
+
 \item{s}{Number of variables combined for the confidence interval. Default is s = 1.}
 
 \item{exponent}{Exponent for the confidence interval. Default is exponent = 1.}
@@ -39,8 +41,6 @@ GGMtest(
 \item{penalty}{Additional coefficient for the penalty term. Default value is c = 1.1.}
 
 \item{k_fold}{Parameter for K-fold estimation. Default is k_fold = 1.}
-
-\item{method}{Method for point estimation, either 'partialling out' or 'root'}
 
 \item{rnd_seed}{Add random seed for replicability.}
 }
