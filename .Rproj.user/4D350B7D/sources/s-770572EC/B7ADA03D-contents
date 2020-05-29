@@ -13,7 +13,6 @@
 #' @param exponent Exponent for the confidence interval. Default is exponent = 1.
 #' @param penalty Additional coefficient for the penalty term. Default value is c = 1.1.
 #' @param k_fold Parameter for K-fold estimation. Default is k_fold = 1.
-#' @param rnd_seed Add random seed for replicability.
 #'
 #' @return A list with components
 #' \item{estimates}{A vector of point estimates.}
@@ -64,8 +63,7 @@ GGMtest <- function(data = X,
                     s = 1,
                     exponent = 1,
                     penalty = list(c = 1.1),
-                    k_fold = 1,
-                    rnd_seed = NULL) {
+                    k_fold = 1) {
   X <- as.matrix(data)
   S <- as.matrix(edges)
   n <- dim(X)[1]
@@ -98,10 +96,6 @@ GGMtest <- function(data = X,
 
 
   #### K-fold partition ####
-
-  old_seed <- .Random.seed # saving seed
-  on.exit( { .Random.seed <<- old_seed } ) # resetting seed on exit
-  set.seed(rnd_seed)
   num_drop <- n-k_fold*floor(n/k_fold) # number of indices to be added seperately
 
   if (num_drop > 0) {

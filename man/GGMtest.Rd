@@ -15,8 +15,7 @@ GGMtest(
   s = 1,
   exponent = 1,
   penalty = list(c = 1.1),
-  k_fold = 1,
-  rnd_seed = NULL
+  k_fold = 1
 )
 }
 \arguments{
@@ -41,8 +40,6 @@ GGMtest(
 \item{penalty}{Additional coefficient for the penalty term. Default value is c = 1.1.}
 
 \item{k_fold}{Parameter for K-fold estimation. Default is k_fold = 1.}
-
-\item{rnd_seed}{Add random seed for replicability.}
 }
 \value{
 A list with components

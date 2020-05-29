@@ -1,24 +1,24 @@
 {
     "collab_server" : "",
     "contents" : "",
-    "created" : 1590740626119.000,
+    "created" : 1590746745189.000,
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
     "hash" : "0",
-    "id" : "DFFBD94D",
-    "lastKnownWriteTime" : 1589274999,
-    "last_content_update" : 1589274999,
-    "path" : "D:/GitHub/GGM/R/Simulation_old/Simulation_final_3/Table_4/Random_3.R",
+    "id" : "8B34E365",
+    "lastKnownWriteTime" : 1590682914,
+    "last_content_update" : 1590682914,
+    "path" : "D:/GitHub/GGM/R/Simulation/Comp_1.R",
     "project_path" : null,
     "properties" : {
-        "cursorPosition" : "54,67",
-        "scrollLine" : "36"
+        "cursorPosition" : "43,15",
+        "scrollLine" : "0"
     },
     "read_only" : false,
     "read_only_alternatives" : [
     ],
-    "relative_order" : 7,
+    "relative_order" : 8,
     "source_on_save" : false,
     "source_window" : "",
     "type" : "r_source"
