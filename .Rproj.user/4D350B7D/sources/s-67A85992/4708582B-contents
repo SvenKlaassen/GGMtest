@@ -1,0 +1,69 @@
+rm(list=ls())
+
+package_list <- c("huge","tictoc","igraph","GGMtest")
+invisible(lapply(package_list, library, character.only = TRUE))
+
+rm(list=ls())
+library(huge)
+library(tictoc)
+library(igraph)
+library(network)
+
+set.seed(42)
+#### generate data ####
+n <- 500  # number of observations
+p <- 100  # dimension of the gaussian vector
+l <- 1000   # number of independent Monte-Carlo Estimation
+
+
+# generate data
+#L <- huge.generator(n = l*n, d = p, graph = "cluster", g = 4) #different graph structures including "random", "hub", "cluster", "band" and "scale-free".
+p_1= p-1
+#generate data
+L = huge.generator(n = l*n, d = p_1, graph = "random",prob = 1/p)
+a <- rep(0,p_1)
+b <- c(rep(0,p_1),1)
+net <- cbind(rbind(as.matrix(L$theta),a),b)
+true_graph <- network(net)
+plot(true_graph,jitter=TRUE, usearrows = FALSE, label=1:p,displaylabels=T)
+
+
+
+#index pairs for inference
+S <- matrix(c(rep(p,p_1),1:p_1),byrow=F,ncol=2)
+p_1 = dim(S)[1] 
+
+#### Estimation ####
+
+
+tic("total time")
+
+`%dopar%` <- foreach::`%dopar%`
+# initialise clusters
+cores <-parallel::detectCores(all.tests = FALSE, logical = TRUE)-1
+cl <- parallel::makeCluster(cores)
+doParallel::registerDoParallel(cl)
+
+v_hyp_max <- foreach::foreach(h = 1:l,.combine = c) %dopar% {
+  X <- cbind(L$data[((h-1)*n+1):(h*n),],rnorm(n, mean = 0, sd = 1))
+  
+  #### GGMtest ####
+  ggm_model <- GGMtest(data = X,
+                       edges = S,
+                       null_hyp = 0,
+                       alpha = 0.05,
+                       nbootstrap = 1000,
+                       nuisance_estimaton = "sqrt-lasso",
+                       method = 'partialling out',
+                       s=1,
+                       exponent=1,
+                       k_fold = 1,
+                       rnd_seed = NULL)
+  
+  ggm_model$hyp_max
+}
+parallel::stopCluster(cl)
+toc()
+
+sprintf("Coverage: %s", sum(v_hyp_max)/l)
+

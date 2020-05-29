@@ -1,0 +1,20 @@
+cl <- parallel::makeCluster(2)
+doParallel::registerDoParallel(cl)
+a <-foreach(i=1:100) %dopar% {i}
+parallel::stopCluster(cl)
+
+
+lapply(est, function(x){
+  lapply(x, function(y){
+    print(y[[4]])
+  })})
+beta_mat[est[[4]],num_fold] <- est[[1]]
+pred1[est[[4]],1:n2,num_fold] <- est[[2]]
+pred2[est[[4]],1:n2,num_fold] <- est[[3]]
+}
+
+invisible(lapply(b, function(x){
+  beta_mat[x[[4]],num_fold] <- x[[1]]
+  pred1[x[[4]],1:n2,num_fold] <- x[[2]]
+  pred2[x[[4]],1:n2,num_fold] <- x[[3]]
+}))

@@ -11,7 +11,7 @@ GGMtest(
   alpha = 0.05,
   nbootstrap = 500,
   nuisance_estimaton = "lasso",
-  method = "partialling out",
+  method = "root",
   s = 1,
   exponent = 1,
   penalty = list(c = 1.1),
@@ -32,7 +32,7 @@ GGMtest(
 
 \item{nuisance_estimaton}{Method for nuisance parameter estimation from 'lasso', 'post-lasso' or 'sqrt-lasso'}
 
-\item{method}{Method for point estimation, either 'partialling out' or 'root'}
+\item{method}{Method for point estimation, either 'root' or 'partialling out'}
 
 \item{s}{Number of variables combined for the confidence interval. Default is s = 1.}
 

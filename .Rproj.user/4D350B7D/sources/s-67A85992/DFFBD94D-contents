@@ -1,0 +1,100 @@
+rm(list = ls())
+library(devtools)
+load_all("Z:/wiso/Arbeitsbereiche/FB_BWL_Statistik_mit_Anwenung_in_der_BWL/Projekte/GGM/R-Package/GGMtest")
+
+library(network)
+library(mvtnorm)
+library(stats)
+library(rootSolve)
+library(tictoc)
+library(MASS)
+
+library(huge)
+set.seed(123)
+
+
+
+n <- 200                  # number of observations
+p <- 100
+l <- 1000
+
+p_1= p-1
+#generate data
+L = huge.generator(n = l*n, d = p_1, graph = "random",prob = 5/p)
+a <- rep(0,p_1)
+b <- c(rep(0,p_1),1)
+net <- cbind(rbind(as.matrix(L$theta),a),b)
+true_graph <- network(net)
+plot(true_graph,jitter=TRUE, usearrows = FALSE, label=1:p,displaylabels=T)
+
+k_fold = 3
+rnd_seed = 1233
+alpha = 0.05
+nbootstrap = 1000
+s=1
+exponent=1
+
+#index pairs for inference
+S <- matrix(c(rep(p,p_1),1:p_1),byrow=F,ncol=2)
+p_1 = dim(S)[1] 
+#########################################################################################################
+#Independent simulations
+#########################################################################################################
+v_hyp_max_lasso <- vector("logical",l)
+v_hyp_sphere_lasso <- vector("logical",l)
+
+v_hyp_max_post <- vector("logical",l)
+v_hyp_sphere_post <- vector("logical",l)
+
+v_hyp_max_sqrt <- vector("logical",l)
+v_hyp_sphere_sqrt <- vector("logical",l)
+
+tic("total time")
+tic("time difference")
+for (h in 1:l){
+  X <- cbind(L$data[((h-1)*n+1):(h*n),],rnorm(n, mean = 0, sd = 1))
+  
+  ################################################################################
+  # using GGMtest
+  ################################################################################
+  Model_lasso <- GGMtest12(X,S,rep(0,p_1),s=s,exponent=exponent, alpha = alpha, nbootstrap = nbootstrap,nuisance_estimaton = "lasso",k_fold = k_fold,rnd_seed = rnd_seed)
+  Model_post <- GGMtest12(X,S,rep(0,p_1),s=s,exponent=exponent, alpha = alpha, nbootstrap = nbootstrap,nuisance_estimaton = "post-lasso",k_fold = k_fold,rnd_seed = rnd_seed)
+  Model_sqrt <- GGMtest12(X,S,rep(0,p_1),s=s,exponent=exponent, alpha = alpha, nbootstrap = nbootstrap,nuisance_estimaton = "sqrt-lasso",k_fold = k_fold,rnd_seed = rnd_seed)
+  
+  v_hyp_max_lasso[h]<- Model_lasso$hyp_max
+  v_hyp_sphere_lasso[h] <- Model_lasso$hyp_sphere
+  
+  v_hyp_max_post[h]<- Model_post$hyp_max
+  v_hyp_sphere_post[h] <- Model_post$hyp_sphere
+  
+  v_hyp_max_sqrt[h]<- Model_sqrt$hyp_max
+  v_hyp_sphere_sqrt[h] <- Model_sqrt$hyp_sphere
+  
+  if (h%%(l/10)==0){
+    cat("step", h, "out of" , l,"\n")
+    toc()
+    tic("time difference")
+  }
+}
+toc(quiet = T )
+toc()
+
+cov_max_lasso = sum(v_hyp_max_lasso)/l
+cov_max_post =  sum(v_hyp_max_post)/l
+cov_max_sqrt =  sum(v_hyp_max_sqrt)/l
+
+cov_sphere_lasso = sum(v_hyp_sphere_lasso)/l
+cov_sphere_post =  sum(v_hyp_sphere_post)/l
+cov_sphere_sqrt =  sum(v_hyp_sphere_sqrt)/l
+
+sprintf("Coverage max lasso: %s", cov_max_lasso)
+sprintf("Coverage Sphere lasso: %s", cov_sphere_lasso)
+
+sprintf("Coverage max post: %s", cov_max_post)
+sprintf("Coverage Sphere post: %s", cov_sphere_post)
+
+sprintf("Coverage max sqrt: %s", cov_max_sqrt)
+sprintf("Coverage Sphere sqrt: %s", cov_sphere_sqrt)
+
+#setwd("Z:/wiso/Arbeitsbereiche/FB_BWL_Statistik_mit_Anwenung_in_der_BWL/Projekte/GGM/Simulation_final_3/Table_4/Results")
+#save(list="n","p","l","p_1","s","exponent","k_fold","rnd_seed","nbootstrap","alpha","cov_max_lasso","cov_sphere_lasso","cov_max_post","cov_sphere_post","cov_max_sqrt","cov_sphere_sqrt",file="Results_random_3.Rdata")
