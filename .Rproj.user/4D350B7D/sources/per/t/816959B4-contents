@@ -54,8 +54,7 @@ for (h in 1:l){
                        method = 'partialling out',
                        s=1,
                        exponent=1,
-                       k_fold = 1,
-                       rnd_seed = NULL)
+                       k_fold = 1)
 
   v_hyp_max[h]<- ggm_model$hyp_max
 

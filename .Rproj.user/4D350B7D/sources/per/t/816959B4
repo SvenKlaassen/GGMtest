@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1590747812857.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "626651815",
+    "id" : "816959B4",
+    "lastKnownWriteTime" : 1590747827,
+    "last_content_update" : 1590747827027,
+    "path" : "D:/GitHub/GGMtest/Examples/Example_1.R",
+    "project_path" : "Examples/Example_1.R",
+    "properties" : {
+        "cursorPosition" : "56,33",
+        "scrollLine" : "32"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
