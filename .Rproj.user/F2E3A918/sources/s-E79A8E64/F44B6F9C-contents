@@ -1,0 +1,76 @@
+rm(list=ls())
+package_list <- c("devtools","network","mvtnorm","stats","huge","tictoc","rootSolve",
+                  "MASS","ggplot2","igraph","GGMtest")
+invisible(lapply(package_list, library, character.only = TRUE))
+
+library(huge)
+library(tictoc)
+set.seed(42)
+
+#### generate data ####
+n <- 200  # number of observations
+p <- 20   # dimension of the gaussian vector
+l <- 100    # number of independent Monte-Carlo Estimation
+
+
+# generate data
+L <- huge.generator(n = l*n, d = p, graph = "cluster", g = 4) #different graph structures including "random", "hub", "cluster", "band" and "scale-free".
+# true Graph
+true_graph <- graph_from_adjacency_matrix(as.matrix(L$theta) , mode='undirected', diag=F )
+plot(true_graph, usearrows = FALSE, label=1:p,displaylabels=T,main = "True Graph",
+     layout= layout.fruchterman.reingold,edge.width = 2,edge.color = "black")
+#### parameters for estimation ####
+k_fold <- 1         # k-fold estimation
+alpha <- 0.05       # significance level
+nboot <- 1000       # number of bootstrap repetitions
+nu_est <- "sqrt-lasso"   # method for nuisance estimation including (lasso,post-lasso and sqrt-lasso)
+
+#index pairs for inference
+p_2 = p/4
+S_1 <- c()
+for (i in 1:p_2){
+  S_1 <- c(S_1,rep(i,p_2))
+}
+for (i in 1:p_2){
+  S_1 <- c(S_1,(p_2+1):(2*p_2))
+}
+S <- matrix(S_1,byrow =F,ncol =2)
+p_1 = dim(S)[1]
+
+S[1,] <- c(1,2)
+S[2,] <- c(1,3)
+S[3,] <- c(1,4)
+S[4,] <- c(1,5)
+#### Estimation ####
+v_hyp_max <- vector("logical",l)
+v_hyp_sphere <- vector("logical",l)
+
+tic("total time")
+tic("time difference")
+for (h in 1:l){
+  X <- L$data[((h-1)*n+1):(h*n),]
+  
+  #### GGMtest ####
+  ggm_model <- GGMtest(data = X,edges = S, s=1, exponent=1, alpha = alpha, nbootstrap = nboot,
+                       nuisance_estimaton = nu_est,k_fold = k_fold)
+  ggm_model_sphere <- GGMtest(data = X,edges = S, s = 2, exponent = 2, alpha = alpha, nbootstrap = nboot,
+                              nuisance_estimaton = nu_est,k_fold = k_fold)
+  v_hyp_max[h]<- ggm_model$hyp_max
+  v_hyp_sphere[h] <- ggm_model_sphere$hyp_max
+  
+  if (h%%(l/10)==0){
+    cat("step", h, "out of" , l,"\n")
+    toc()
+    tic("time difference")
+  }
+}
+toc(quiet = T )
+toc()
+
+sprintf("Power max: %s", 1-sum(v_hyp_max)/l)
+sprintf("Power Sphere: %s", 1-sum(v_hyp_max)/l)
+
+#plotting confidence intervals
+#only usable for s=1
+plot_GGMtest(ggm_model,edges = S[1:5,])
+plot_GGMtest(ggm_model_sphere,edges = S[1:5,])
