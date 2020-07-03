@@ -15,7 +15,8 @@ GGMtest(
   s = 1,
   exponent = 1,
   penalty = list(c = 1.1),
-  k_fold = 1
+  k_fold = 1,
+  root_range = c(-100, 100)
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ GGMtest(
 \item{penalty}{Additional coefficient for the penalty term. Default value is c = 1.1.}
 
 \item{k_fold}{Parameter for K-fold estimation. Default is k_fold = 1.}
+
+\item{root_range}{Parameter for range of the root search (only relevant for method = 'root'). Default is root_range = (-100,100).}
 }
 \value{
 A list with components

@@ -1,0 +1,15 @@
+count_dist_est2 <- 1
+s <- 2
+for (j in 1:p1){
+  dist_est2[count_dist_est2,] <- apply(dist_est,2,function(x) sum_exponent(x,s,start=j,exponent=exponent,ind_vec= vec1))
+  stat2[count_dist_est2] <- sum_exponent(stat1,s,start=j,exponent=exponent,ind_vec= vec1)
+  count_dist_est2 = count_dist_est2+1
+}
+nsample=apply(abs(dist_est2),2,max)
+#nsample
+max(abs(stat2))
+  
+
+dist_est2 <- dist_est2[seq(1,p1,2),]
+
+stat2 <-  stat2[seq(1,p1,2)]

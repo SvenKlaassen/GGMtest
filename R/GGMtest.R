@@ -13,6 +13,7 @@
 #' @param exponent Exponent for the confidence interval. Default is exponent = 1.
 #' @param penalty Additional coefficient for the penalty term. Default value is c = 1.1.
 #' @param k_fold Parameter for K-fold estimation. Default is k_fold = 1.
+#' @param root_range Parameter for range of the root search (only relevant for method = 'root'). Default is root_range = (-100,100).
 #'
 #' @return A list with components
 #' \item{estimates}{A vector of point estimates.}
@@ -63,7 +64,8 @@ GGMtest <- function(data = X,
                     s = 1,
                     exponent = 1,
                     penalty = list(c = 1.1),
-                    k_fold = 1) {
+                    k_fold = 1,
+                    root_range = c(-100,100)) {
   X <- as.matrix(data)
   S <- as.matrix(edges)
   n <- dim(X)[1]
@@ -190,7 +192,7 @@ GGMtest <- function(data = X,
           #partialling out (first order equivalent)
           beta1 <- stats::lm(pred1[index,1:n2,num_fold]~pred2[index,1:n2,num_fold])$coefficients[2]
         } else if (method == 'root'){
-          beta1 <- stats::uniroot(function(x) mean(Score(x,X[sample2_index,j],pred1[index,1:n2,num_fold],pred2[index,1:n2,num_fold])),interval = c(-10,10))$root
+          beta1 <- stats::uniroot(function(x) mean(Score(x,X[sample2_index,j],pred1[index,1:n2,num_fold],pred2[index,1:n2,num_fold])),interval = c(root_range[1],root_range[2]))$root
         }
         beta_mat[index,num_fold] <- beta1
       }
