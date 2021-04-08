@@ -1,9 +1,9 @@
 {
-    "path" : "D:/GitHub/GGMtest",
-    "sortOrder" : [
+    "path": "D:/GitHub/GGMtest",
+    "sortOrder": [
         {
-            "ascending" : true,
-            "columnIndex" : 2
+            "columnIndex": 2,
+            "ascending": true
         }
     ]
 }

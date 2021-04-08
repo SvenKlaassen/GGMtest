@@ -10,7 +10,7 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
-Imports: checkmate, ggplot2, hdm, picasso, ggforce, rlang, huge, igraph
+Imports: checkmate, ggplot2, hdm, picasso, ggforce, rlang, huge, igraph, R.utils
 Suggests: 
     knitr,
     rmarkdown,
@@ -18,6 +18,7 @@ Suggests:
 VignetteBuilder: knitr
 Collate: 
     'GGMtest.R'
+    'GGMtest_2.R'
     'confidence_intervals.R'
     'adj_GGMtest.R'
     'plot_GGMtest.R'

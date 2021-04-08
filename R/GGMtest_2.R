@@ -1,4 +1,4 @@
-#' GGMtest
+#' GGMtest_2
 #'
 #' Testing conditional independence hypothesis for a gaussian graphical model.
 #'
@@ -40,7 +40,7 @@
 #' S <- matrix(c(1,2,2,3,4,5), byrow = TRUE, ncol = 2)
 #'
 #' # perform test
-#' ggm_model <- GGMtest(data = L$data,edges = S,alpha = 0.05,nuisance_estimaton = "lasso")
+#' ggm_model <- GGMtest_2(data = L$data,edges = S,alpha = 0.05,nuisance_estimaton = "lasso")
 #'
 #' # p-value:
 #' ggm_model$pvalue_max
@@ -55,7 +55,7 @@
 #'
 #'
 
-GGMtest <- function(data = X,
+GGMtest_2 <- function(data = X,
                     edges = S,
                     null_hyp = 0,
                     alpha = 0.05,
@@ -324,29 +324,23 @@ GGMtest <- function(data = X,
 
 
   #### squared over some combinations ####
-
-  dist_est2 <- array(0, dim=c(p1,nbootstrap))
-  stat2 <- array(0, dim= c(p1))
-  vec1 <- sample(p1,p1)
-  count_dist_est2 <- 1
-
-  # defining the function of the sum to the power of exponent
-  sum_exponent <- function(x,s,start_ind,exponent,ind_vec){
-    ind_vec <- c(ind_vec,ind_vec[1:(s-1)]) # the adjust for the end of the vector
-    result <- x[ind_vec[start_ind]]^exponent
-    if (s > 1){
-      for (u in 1:(s-1)){
-        result <- result + x[ind_vec[start_ind+u]]^exponent
-      }
-    }
-    return(result)
+  dist_est2 <- array(0, dim=c(ceiling(p1/s),nbootstrap))
+  stat2 <- array(0, dim= ceiling(p1/s))
+  if (s == 1){
+    vec1 <- subsets <- 1:p1
+  } else {
+    vec1 <- sample(p1,p1) #randomly reorder equations
+    #create disjunct subsets of size s
+    subsets <- split(vec1,factor(rep(1:ceiling(p1/s),s))[1:p1])
   }
 
-  for (j in 1:p1){
-    dist_est2[count_dist_est2,] <- apply(dist_est,2,function(x) sum_exponent(x,s,start=j,exponent=exponent,ind_vec= vec1))
-    stat2[count_dist_est2]<- sum_exponent(stat1,s,start=j,exponent=exponent,ind_vec= vec1)
+  count_dist_est2 <- 1
+  for (subset in subsets){
+    dist_est2[count_dist_est2,] <- apply(dist_est,2,function(x) sum(x[subset]^exponent))
+    stat2[count_dist_est2]<- sum(stat1[subset]^exponent)
     count_dist_est2 = count_dist_est2+1
   }
+
   nsample=apply(abs(dist_est2),2,max)
   quant_est <- stats::quantile(nsample,probs = c(1-alpha,1-alpha/2,alpha/2))
 

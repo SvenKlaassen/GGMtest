@@ -2,6 +2,7 @@
 
 S3method(confint,GGMtest)
 export(GGMtest)
+export(GGMtest_2)
 export(adj_GGMtest)
 export(plot_GGMtest)
 importFrom(rlang,.data)
