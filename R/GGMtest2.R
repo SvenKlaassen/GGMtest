@@ -1,4 +1,4 @@
-#' GGMtest_2
+#' GGMtest2
 #'
 #' Testing conditional independence hypothesis for a gaussian graphical model.
 #'
@@ -40,13 +40,11 @@
 #' S <- matrix(c(1,2,2,3,4,5), byrow = TRUE, ncol = 2)
 #'
 #' # perform test
-#' ggm_model <- GGMtest_2(data = L$data,edges = S,alpha = 0.05,nuisance_estimaton = "lasso")
+#' ggm_model <- GGMtest2(data = L$data,edges = S,alpha = 0.05,nuisance_estimaton = "lasso")
 #'
-#' # p-value:
-#' ggm_model$pvalue_max
+#' # Create Confidence Region:
+#' create_CR(ggm_model)
 #'
-#' # plot the confidence intervals (on a subset of edges)
-#' plot_GGMtest(ggm_model,edges = S)
 #'
 #' @seealso \code{\link{confint.GGMtest}} for confidence intervals, \code{\link{plot_GGMtest}} for plotting options
 #'  and \code{\link{adj_GGMtest}} for the adjacency matrix
@@ -55,7 +53,7 @@
 #'
 #'
 
-GGMtest_2 <- function(data = X,
+GGMtest2 <- function(data = X,
                     edges = S,
                     null_hyp = 0,
                     alpha = 0.05,
@@ -81,9 +79,9 @@ GGMtest_2 <- function(data = X,
 
   #### Checking Arguments ####
 
-  checkmate::checkNumeric(alpha,0,1)
-  checkmate::checkChoice(nuisance_estimaton, c("lasso","post-lasso","sqrt-lasso"))
-  checkmate::checkChoice(method, c('partialling out','root'))
+  checkmate::assertNumeric(alpha,0,1)
+  checkmate::assertChoice(nuisance_estimaton, c("lasso","post-lasso","sqrt-lasso"))
+  checkmate::assertChoice(method, c('partialling out','root'))
 
   if (dim(S)[2] != 2){
     stop("Invalid argument: S has to be a matrix with 2 columns.")
@@ -304,27 +302,70 @@ GGMtest_2 <- function(data = X,
     }
   }
 
+  #save additional parameters
+  add_par <- list(n = n,
+                  p = p,
+                  p1 = p1,
+                  beta_0 = beta_0,
+                  nuisance_estimaton =  nuisance_estimaton,
+                  penalty = penalty,
+                  k_fold = k_fold,
+                  folds = folds,
+                  num_drop = num_drop)
+
+  result <- list(estimates = beta_vec,
+                 edge_list = S,
+                 sigma_est = sigma_vec,
+                 psi_est = psi_est,
+                 additional_parameters = add_par)
+
+  class(result) <- "GGMtest2"
+  return(result)
+}
+
+
+#' Create Confidence regions for a `GGMtest2` object.
+#'
+#' @param model The `GGMtest2` object.
+#' @param alpha The corresponding level.
+#' @param B The number of used Bootstrap repetitions.
+#' @param s The number of s-sparse combinations.
+#' @param exp The corresponding exponent of the s-sparse sets.
+#'
+#' @return A list with the following components.
+#' @export
+
+create_CR <- function(model, alpha = 0.05, B = 500, s = 1, exp = 1){
+  #check arguments
+  checkmate::assertClass(model,"GGMtest2")
+
+  #specify parameters
+  n <- model$additional_parameters$n
+  p1 <- model$additional_parameters$p1
+  k_fold <- model$additional_parameters$k_fold
+  beta_0 <- model$additional_parameters$beta_0
+  num_drop <- model$additional_parameters$num_drop
+
 
   #### Multiplier Bootstrap ####
 
-  dist_est <- array(NA,dim= c(p1,nbootstrap))
+  dist_est <- array(NA,dim= c(p1,B))
 
-  for (b in 1:nbootstrap){
+  for (b in 1:B){
     if (num_drop == 0){
       epsilon <- matrix(stats::rnorm(n+k_fold),byrow=F,ncol=k_fold)
     } else {
       epsilon <- matrix(stats::rnorm(ceiling(n/k_fold)*k_fold),byrow=F,ncol=k_fold)
     }
-    dist_est[,b] <- apply(psi_est,1,function(x) n^(-1/2) * sum(epsilon * x, na.rm = T))
+    dist_est[,b] <- apply(model$psi_est,1,function(x) n^(-1/2) * sum(epsilon * x, na.rm = T))
     #for (j in 1:p1){dist_est[j,b] <- n^(-1/2)*sum(epsilon*psi_est[j,,],na.rm = T)}
   }
 
   #### Hypotheses Testing ####
-  stat1 <- sqrt(n)*(beta_vec-beta_0)*sigma_vec^(-1)
-
+  stat1 <- sqrt(n)*(model$estimates-beta_0)*model$sigma_est^(-1)
 
   #### squared over some combinations ####
-  dist_est2 <- array(0, dim=c(ceiling(p1/s),nbootstrap))
+  dist_est2 <- array(0, dim=c(ceiling(p1/s),B))
   stat2 <- array(0, dim= ceiling(p1/s))
   if (s == 1){
     vec1 <- subsets <- 1:p1
@@ -336,49 +377,63 @@ GGMtest_2 <- function(data = X,
 
   count_dist_est2 <- 1
   for (subset in subsets){
-    dist_est2[count_dist_est2,] <- apply(dist_est,2,function(x) sum(x[subset]^exponent))
-    stat2[count_dist_est2]<- sum(stat1[subset]^exponent)
+    #changed to lp-Ball (added absolute value)
+    dist_est2[count_dist_est2,] <- apply(dist_est,2,function(x) sum(abs(x[subset])^exp))
+    stat2[count_dist_est2]<- sum(abs(stat1[subset])^exp)
     count_dist_est2 = count_dist_est2+1
   }
 
-  nsample=apply(abs(dist_est2),2,max)
+  nsample <- apply(abs(dist_est2),2,max)
   quant_est <- stats::quantile(nsample,probs = c(1-alpha,1-alpha/2,alpha/2))
 
-  hyp_max <- (max(abs(stat2))<= quant_est[[1]])
-
-  hyp_sphere <- (max(abs(stat2))<= quant_est[[2]] && quant_est[[3]] <= max(abs(stat2)))
+  hyp_max <- (max(abs(stat2)) <= quant_est[[1]])
+  hyp_sphere <- (max(abs(stat2)) <= quant_est[[2]] && quant_est[[3]] <= max(abs(stat2)))
 
   Nsample <- sort(nsample)
   target_est <- max(abs(stat2))
 
   #### p-value ####
-
   hmax=TRUE
   b=0
-  while (hmax==TRUE && b<=nbootstrap){
-    hmax=(target_est<= Nsample[(nbootstrap-b)])
+  while (hmax==TRUE && b<=B){
+    hmax=(target_est <= Nsample[(B-b)])
     b=b+1
-
   }
-  pvalue_max=(b-1)/nbootstrap
+  pvalue_max=(b-1)/B
 
   hsphere=TRUE
   b=0
-  while (hsphere==TRUE && b<=(nbootstrap/2)){
-    hsphere=(target_est<= Nsample[(nbootstrap-b)] && Nsample[(b+1)] <= target_est)
+  while (hsphere==TRUE && b<=(B/2)){
+    hsphere=(target_est <= Nsample[(B-b)] && Nsample[(b+1)] <= target_est)
     b=b+1
 
   }
-  pvalue_sphere=2*(b-1)/nbootstrap
+  pvalue_sphere=2*(b-1)/B
 
-  #save additional parameters
-  add_par <- list(sigma_est = sigma_vec, n = n, alpha = alpha,beta_0 = beta_0,s = s,exponent = exponent,
-                  random_order = vec1, p = p)
+  #calculate volumes (lp-Ball)
+  vol_max_vec <- rep(NA,length(subsets))
+  vol_sphere_vec <- rep(NA,length(subsets))
+  vol_index <- 1
+  for (subset in subsets){
+    vol_max_vec[vol_index] <- 2^length(subset)*gamma(1/exp+1)/gamma(length(subset)/exp+1)*prod(quant_est[[1]]^(1/exp)*model$sigma_est[subset]/sqrt(n))
+    vol_sphere_vec[vol_index] <- 2^length(subset)*gamma(1/exp+1)/gamma(length(subset)/exp+1)*prod(quant_est[[2]]^(1/exp)*model$sigma_est[subset]/sqrt(n)) - 2^length(subset)*gamma(1/exp+1)/gamma(length(subset)/exp+1)*prod(quant_est[[3]]^(1/exp)*model$sigma_est[subset]/sqrt(n))
+    vol_index <- vol_index + 1
+  }
 
-  result <- list(estimates = beta_vec,edge_list = S, pvalue_max = pvalue_max, hyp_max=hyp_max, alpha = alpha,
-                 nbootstrap = nbootstrap, nuisance_estimaton =  nuisance_estimaton, penalty = penalty, folds = folds,
-                 Nsample = Nsample, target_est = target_est, hyp_sphere= hyp_sphere, pvalue_sphere = pvalue_sphere,
-                 quantile =quant_est, additional_parameters = add_par)
-  class(result) <- "GGMtest"
+  vol_max <- prod(vol_max_vec)
+  vol_sphere <- prod(vol_sphere_vec)
+
+  result <- list(estimates = model$estimates,
+                 edge_list = model$edge_list,
+                 pvalue_max = pvalue_max,
+                 pvalue_sphere = pvalue_sphere,
+                 hyp_max = hyp_max,
+                 hyp_sphere = hyp_sphere,
+                 vol_max = vol_max,
+                 vol_sphere = vol_sphere,
+                 quantiles = quant_est)
   return(result)
 }
+
+
+
