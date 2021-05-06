@@ -10,7 +10,7 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
-Imports: checkmate, ggplot2, hdm, picasso, ggforce, rlang, huge, igraph, R.utils,MASS
+Imports: checkmate, ggplot2, hdm, picasso, ggforce, rlang, huge, igraph, R.utils, MASS
 Suggests: 
     knitr,
     rmarkdown,

@@ -29,7 +29,7 @@ test_that("Compare GGMtest and GGMtest2", {
 
 test_that("Test volumes", {
   set.seed(42)
-  n <- 200; p <- 10
+  n <- 200; p <- 100
   X <- MASS::mvrnorm(n=n, mu=rep(0,p), Sigma=diag(p))
 
   edges <- matrix(c(rep(1,p-1),2:p),ncol = 2)
@@ -48,4 +48,4 @@ test_that("Test volumes", {
 
   expect_equal(CR$vol_max,vol_max)
   expect_equal(CR$vol_sphere,vol_sphere)
-})
+  })

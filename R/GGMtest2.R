@@ -412,16 +412,18 @@ create_CR <- function(model, alpha = 0.05, B = 500, s = 1, exp = 1){
 
   #calculate volumes (lp-Ball)
   vol_max_vec <- rep(NA,length(subsets))
-  vol_sphere_vec <- rep(NA,length(subsets))
+  vol_sphere_vec_upper <- rep(NA,length(subsets))
+  vol_sphere_vec_lower <- rep(NA,length(subsets))
   vol_index <- 1
   for (subset in subsets){
-    vol_max_vec[vol_index] <- 2^length(subset)*gamma(1/exp+1)/gamma(length(subset)/exp+1)*prod(quant_est[[1]]^(1/exp)*model$sigma_est[subset]/sqrt(n))
-    vol_sphere_vec[vol_index] <- 2^length(subset)*gamma(1/exp+1)/gamma(length(subset)/exp+1)*prod(quant_est[[2]]^(1/exp)*model$sigma_est[subset]/sqrt(n)) - 2^length(subset)*gamma(1/exp+1)/gamma(length(subset)/exp+1)*prod(quant_est[[3]]^(1/exp)*model$sigma_est[subset]/sqrt(n))
+    vol_max_vec[vol_index] <- 2^length(subset)*gamma(1/exp+1)^length(subset)/gamma(length(subset)/exp+1)*prod(quant_est[[1]]^(1/exp)*model$sigma_est[subset]/sqrt(n))
+    vol_sphere_vec_upper[vol_index] <- 2^length(subset)*gamma(1/exp+1)^length(subset)/gamma(length(subset)/exp+1)*prod(quant_est[[2]]^(1/exp)*model$sigma_est[subset]/sqrt(n))
+    vol_sphere_vec_lower[vol_index] <- 2^length(subset)*gamma(1/exp+1)^length(subset)/gamma(length(subset)/exp+1)*prod(quant_est[[3]]^(1/exp)*model$sigma_est[subset]/sqrt(n))
     vol_index <- vol_index + 1
   }
 
   vol_max <- prod(vol_max_vec)
-  vol_sphere <- prod(vol_sphere_vec)
+  vol_sphere <- prod(vol_sphere_vec_upper) - prod(vol_sphere_vec_lower)
 
   result <- list(estimates = model$estimates,
                  edge_list = model$edge_list,
