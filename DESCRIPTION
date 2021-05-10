@@ -13,6 +13,7 @@ RoxygenNote: 7.1.1
 Imports: checkmate, ggplot2, hdm, picasso, ggforce, rlang, huge, igraph, R.utils, MASS
 Suggests: 
     knitr,
+    patrick,
     rmarkdown,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr

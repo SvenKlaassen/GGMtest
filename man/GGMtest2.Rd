@@ -9,7 +9,7 @@ GGMtest2(
   edges = S,
   nbootstrap = 500,
   nuisance_estimaton = "lasso",
-  method = "partialling out",
+  method = "robust",
   DML_method = "DML2",
   penalty = list(c = 1.1),
   k_fold = 1,

@@ -53,7 +53,7 @@ GGMtest2 <- function(data = X,
                     edges = S,
                     nbootstrap = 500,
                     nuisance_estimaton = 'lasso',
-                    method = 'partialling out',
+                    method = 'robust',
                     DML_method = 'DML2',
                     penalty = list(c = 1.1),
                     k_fold = 1,
@@ -68,7 +68,7 @@ GGMtest2 <- function(data = X,
   #### Checking Arguments ####
 
   checkmate::assertChoice(nuisance_estimaton, c("lasso","post-lasso","sqrt-lasso"))
-  checkmate::assertChoice(method, c('partialling out','root'))
+  checkmate::assertChoice(method, c('robust','partialling out','root'))
 
   if (dim(S)[2] != 2){
     stop("Invalid argument: S has to be a matrix with 2 columns.")
@@ -179,7 +179,9 @@ GGMtest2 <- function(data = X,
 
         #### Estimator ####
         if (DML_method == "DML1"){
-          if (method == 'partialling out'){
+          if (method == 'robust'){
+            beta1 <- mean(pred2[index,1:n2,num_fold]*X[sample2_index,j])^-1*mean(pred2[index,1:n2,num_fold]*pred1[index,1:n2,num_fold])
+          } else if (method == 'partialling out'){
             #partialling out (first order equivalent)
             beta1 <- stats::lm(pred1[index,1:n2,num_fold]~pred2[index,1:n2,num_fold])$coefficients[2]
           } else if (method == 'root'){
@@ -201,7 +203,16 @@ GGMtest2 <- function(data = X,
         index <- match(TRUE, i == S[,1] & j == S[,2])
         error_1 <- t(R.utils::wrap(pred1[index,1:n2,,drop = F],map=list(1,NA)))
         error_2 <- t(R.utils::wrap(pred2[index,1:n2,,drop = F],map=list(1,NA)))
-        beta_vec[index] <- stats::lm(error_1 ~ error_2)$coefficients[2]
+        if (method == 'robust'){
+          if (k_fold == 1){
+            X_j <- X[,j]
+          } else{
+            X_j <- X[unlist(folds),j]
+          }
+          beta_vec[index] <- mean(error_2*X_j)^-1*mean(error_2*error_1)
+        } else if (method == 'partialling out'){
+          beta_vec[index] <- stats::lm(error_1 ~ error_2)$coefficients[2]
+        }
       }
     }
   }
