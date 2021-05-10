@@ -180,10 +180,10 @@ GGMtest2 <- function(data = X,
         #### Estimator ####
         if (DML_method == "DML1"){
           if (method == 'robust'){
-            beta1 <- mean(pred2[index,1:n2,num_fold]*X[sample2_index,j])^-1*mean(pred2[index,1:n2,num_fold]*pred1[index,1:n2,num_fold])
+            beta1 <- mean(pred2[index,1:n2,num_fold]*pred1[index,1:n2,num_fold])/mean(pred2[index,1:n2,num_fold]*X[sample2_index,j])
           } else if (method == 'partialling out'){
             #partialling out (first order equivalent)
-            beta1 <- stats::lm(pred1[index,1:n2,num_fold]~pred2[index,1:n2,num_fold])$coefficients[2]
+            beta1 <- stats::lm(pred1[index,1:n2,num_fold] ~ pred2[index,1:n2,num_fold])$coefficients[2]
           } else if (method == 'root'){
             beta1 <- stats::uniroot(function(x) mean(Score(x,X[sample2_index,j],pred1[index,1:n2,num_fold],pred2[index,1:n2,num_fold])),interval = c(root_range[1],root_range[2]))$root
           }
@@ -206,10 +206,10 @@ GGMtest2 <- function(data = X,
         if (method == 'robust'){
           if (k_fold == 1){
             X_j <- X[,j]
-          } else{
-            X_j <- X[unlist(folds),j]
+          } else {
+            X_j <- X[Reduce(c,folds),j]
           }
-          beta_vec[index] <- mean(error_2*X_j)^-1*mean(error_2*error_1)
+          beta_vec[index] <- mean(error_2*error_1)/mean(error_2*X_j)
         } else if (method == 'partialling out'){
           beta_vec[index] <- stats::lm(error_1 ~ error_2)$coefficients[2]
         }
