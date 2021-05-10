@@ -4,14 +4,10 @@
 #'
 #' @param data Dataset: either matrix or dataframe
 #' @param edges Matrix of edges for testing: each row specifies an edge
-#' @param null_hyp A vector of null hypothesis values for the coefficients: Default is 0 for conditional independence
-#' @param alpha Provides a value for the level of the test
 #' @param nbootstrap Number of repetitions for the bootstrap procedure
 #' @param nuisance_estimaton Method for nuisance parameter estimation from 'lasso', 'post-lasso' or 'sqrt-lasso'
 #' @param method Method for point estimation, either 'root' or 'partialling out'
 #' @param DML_method Method for point estimation, either 'DML2' or 'DML1'
-#' @param s Number of variables combined for the confidence interval. Default is s = 1.
-#' @param exponent Exponent for the confidence interval. Default is exponent = 1.
 #' @param penalty Additional coefficient for the penalty term. Default value is c = 1.1.
 #' @param k_fold Parameter for K-fold estimation. Default is k_fold = 1.
 #' @param root_range Parameter for range of the root search (only relevant for method = 'root'). Default is root_range = (-100,100).
@@ -40,7 +36,7 @@
 #' S <- matrix(c(1,2,2,3,4,5), byrow = TRUE, ncol = 2)
 #'
 #' # perform test
-#' ggm_model <- GGMtest2(data = L$data,edges = S,alpha = 0.05,nuisance_estimaton = "lasso")
+#' ggm_model <- GGMtest2(data = L$data,edges = S,nuisance_estimaton = "lasso")
 #'
 #' # Create Confidence Region:
 #' create_CR(ggm_model)
@@ -55,14 +51,10 @@
 
 GGMtest2 <- function(data = X,
                     edges = S,
-                    null_hyp = 0,
-                    alpha = 0.05,
                     nbootstrap = 500,
                     nuisance_estimaton = 'lasso',
                     method = 'partialling out',
                     DML_method = 'DML2',
-                    s = 1,
-                    exponent = 1,
                     penalty = list(c = 1.1),
                     k_fold = 1,
                     root_range = c(-100,100)) {
@@ -70,16 +62,11 @@ GGMtest2 <- function(data = X,
   S <- as.matrix(edges)
   n <- dim(X)[1]
   p <- dim(X)[2]
-  if (length(null_hyp) == 1){
-    beta_0 <- rep(null_hyp,dim(S)[1])
-  } else {
-    beta_0 <- null_hyp
-  }
+
 
 
   #### Checking Arguments ####
 
-  checkmate::assertNumeric(alpha,0,1)
   checkmate::assertChoice(nuisance_estimaton, c("lasso","post-lasso","sqrt-lasso"))
   checkmate::assertChoice(method, c('partialling out','root'))
 
@@ -306,7 +293,6 @@ GGMtest2 <- function(data = X,
   add_par <- list(n = n,
                   p = p,
                   p1 = p1,
-                  beta_0 = beta_0,
                   nuisance_estimaton =  nuisance_estimaton,
                   penalty = penalty,
                   k_fold = k_fold,
@@ -327,6 +313,7 @@ GGMtest2 <- function(data = X,
 #' Create Confidence regions for a `GGMtest2` object.
 #'
 #' @param model The `GGMtest2` object.
+#' @param null_hyp A vector of null hypothesis values for the coefficients: Default is 0 for conditional independence
 #' @param alpha The corresponding level.
 #' @param B The number of used Bootstrap repetitions.
 #' @param s The number of s-sparse combinations.
@@ -335,17 +322,22 @@ GGMtest2 <- function(data = X,
 #' @return A list with the following components.
 #' @export
 
-create_CR <- function(model, alpha = 0.05, B = 500, s = 1, exp = 1){
+create_CR <- function(model, null_hyp = 0, alpha = 0.05, B = 500, s = 1, exp = 1){
   #check arguments
   checkmate::assertClass(model,"GGMtest2")
+  checkmate::assertNumber(alpha,lower = 0, upper = 1)
 
   #specify parameters
   n <- model$additional_parameters$n
   p1 <- model$additional_parameters$p1
   k_fold <- model$additional_parameters$k_fold
-  beta_0 <- model$additional_parameters$beta_0
   num_drop <- model$additional_parameters$num_drop
 
+  if (length(null_hyp) == 1){
+    beta_0 <- rep(null_hyp,p1)
+  } else {
+    beta_0 <- null_hyp
+  }
 
   #### Multiplier Bootstrap ####
 

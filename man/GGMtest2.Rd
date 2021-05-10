@@ -7,14 +7,10 @@
 GGMtest2(
   data = X,
   edges = S,
-  null_hyp = 0,
-  alpha = 0.05,
   nbootstrap = 500,
   nuisance_estimaton = "lasso",
   method = "partialling out",
   DML_method = "DML2",
-  s = 1,
-  exponent = 1,
   penalty = list(c = 1.1),
   k_fold = 1,
   root_range = c(-100, 100)
@@ -25,10 +21,6 @@ GGMtest2(
 
 \item{edges}{Matrix of edges for testing: each row specifies an edge}
 
-\item{null_hyp}{A vector of null hypothesis values for the coefficients: Default is 0 for conditional independence}
-
-\item{alpha}{Provides a value for the level of the test}
-
 \item{nbootstrap}{Number of repetitions for the bootstrap procedure}
 
 \item{nuisance_estimaton}{Method for nuisance parameter estimation from 'lasso', 'post-lasso' or 'sqrt-lasso'}
@@ -36,10 +28,6 @@ GGMtest2(
 \item{method}{Method for point estimation, either 'root' or 'partialling out'}
 
 \item{DML_method}{Method for point estimation, either 'DML2' or 'DML1'}
-
-\item{s}{Number of variables combined for the confidence interval. Default is s = 1.}
-
-\item{exponent}{Exponent for the confidence interval. Default is exponent = 1.}
 
 \item{penalty}{Additional coefficient for the penalty term. Default value is c = 1.1.}
 
@@ -75,7 +63,7 @@ plot(true_graph, usearrows = FALSE, label=1:10, displaylabels=TRUE, main = "True
 S <- matrix(c(1,2,2,3,4,5), byrow = TRUE, ncol = 2)
 
 # perform test
-ggm_model <- GGMtest2(data = L$data,edges = S,alpha = 0.05,nuisance_estimaton = "lasso")
+ggm_model <- GGMtest2(data = L$data,edges = S,nuisance_estimaton = "lasso")
 
 # Create Confidence Region:
 create_CR(ggm_model)

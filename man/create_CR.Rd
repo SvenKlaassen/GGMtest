@@ -4,10 +4,12 @@
 \alias{create_CR}
 \title{Create Confidence regions for a `GGMtest2` object.}
 \usage{
-create_CR(model, alpha = 0.05, B = 500, s = 1, exp = 1)
+create_CR(model, null_hyp = 0, alpha = 0.05, B = 500, s = 1, exp = 1)
 }
 \arguments{
 \item{model}{The `GGMtest2` object.}
+
+\item{null_hyp}{A vector of null hypothesis values for the coefficients: Default is 0 for conditional independence}
 
 \item{alpha}{The corresponding level.}
 
