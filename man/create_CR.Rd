@@ -21,6 +21,15 @@ create_CR(model, null_hyp = 0, alpha = 0.05, B = 500, s = 1, exp = 1)
 }
 \value{
 A list with the following components.
+\item{estimates}{A vector of point estimates.}
+\item{edge_list}{The matrix containing the corresponding edges (equal to input).}
+\item{pvalue_max}{P-Value of the maximum statistic.}
+\item{pvalue_sphere}{P-Value of the approx. Sphere.}
+\item{hyp_max}{`FALSE` if the hypthesis is rejected with the maximum statistic.}
+\item{hyp_sphere}{`FALSE` if the hypthesis is rejected with the approx. Sphere.}
+\item{vol_max}{Volume of the maximum statistic.}
+\item{vol_sphere}{Volume of  the approx. Sphere.}
+\item{quantiles}{Estimates quantiles.}
 }
 \description{
 Create Confidence regions for a `GGMtest2` object.

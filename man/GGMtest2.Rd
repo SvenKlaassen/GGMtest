@@ -7,13 +7,11 @@
 GGMtest2(
   data = X,
   edges = S,
-  nbootstrap = 500,
   nuisance_estimaton = "lasso",
   method = "robust",
   DML_method = "DML2",
-  penalty = list(c = 1.1),
   k_fold = 1,
-  root_range = c(-100, 100)
+  penalty = list(c = 1.1)
 )
 }
 \arguments{
@@ -21,26 +19,23 @@ GGMtest2(
 
 \item{edges}{Matrix of edges for testing: each row specifies an edge}
 
-\item{nbootstrap}{Number of repetitions for the bootstrap procedure}
-
 \item{nuisance_estimaton}{Method for nuisance parameter estimation from 'lasso', 'post-lasso' or 'sqrt-lasso'}
 
 \item{method}{Method for point estimation, either 'root' or 'partialling out'}
 
 \item{DML_method}{Method for point estimation, either 'DML2' or 'DML1'}
 
-\item{penalty}{Additional coefficient for the penalty term. Default value is c = 1.1.}
-
 \item{k_fold}{Parameter for K-fold estimation. Default is k_fold = 1.}
 
-\item{root_range}{Parameter for range of the root search (only relevant for method = 'root'). Default is root_range = (-100,100).}
+\item{penalty}{Additional coefficient for the penalty term. Default value is c = 1.1.}
 }
 \value{
 A list with components
 \item{estimates}{A vector of point estimates.}
 \item{edge_list}{The matrix containing the corresponding edges (equal to input).}
-\item{pvalue_max}{P-value of the hypothesis.}
-\item{hyp_max}{Maximum statistic of the hypothesis.}
+\item{sigma_est}{Estimates of the standard deviation.}
+\item{psi_est}{Estimates of the score vector.}
+\item{additional_parameters}{Additional parameters.}
 }
 \description{
 Testing conditional independence hypothesis for a gaussian graphical model.

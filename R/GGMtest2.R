@@ -4,19 +4,18 @@
 #'
 #' @param data Dataset: either matrix or dataframe
 #' @param edges Matrix of edges for testing: each row specifies an edge
-#' @param nbootstrap Number of repetitions for the bootstrap procedure
 #' @param nuisance_estimaton Method for nuisance parameter estimation from 'lasso', 'post-lasso' or 'sqrt-lasso'
 #' @param method Method for point estimation, either 'root' or 'partialling out'
 #' @param DML_method Method for point estimation, either 'DML2' or 'DML1'
-#' @param penalty Additional coefficient for the penalty term. Default value is c = 1.1.
 #' @param k_fold Parameter for K-fold estimation. Default is k_fold = 1.
-#' @param root_range Parameter for range of the root search (only relevant for method = 'root'). Default is root_range = (-100,100).
+#' @param penalty Additional coefficient for the penalty term. Default value is c = 1.1.
 #'
 #' @return A list with components
 #' \item{estimates}{A vector of point estimates.}
 #' \item{edge_list}{The matrix containing the corresponding edges (equal to input).}
-#' \item{pvalue_max}{P-value of the hypothesis.}
-#' \item{hyp_max}{Maximum statistic of the hypothesis.}
+#' \item{sigma_est}{Estimates of the standard deviation.}
+#' \item{psi_est}{Estimates of the score vector.}
+#' \item{additional_parameters}{Additional parameters.}
 #'
 #' @examples
 #' library("huge")
@@ -50,42 +49,29 @@
 #'
 
 GGMtest2 <- function(data = X,
-                    edges = S,
-                    nbootstrap = 500,
-                    nuisance_estimaton = 'lasso',
-                    method = 'robust',
-                    DML_method = 'DML2',
-                    penalty = list(c = 1.1),
-                    k_fold = 1,
-                    root_range = c(-100,100)) {
+                     edges = S,
+                     nuisance_estimaton = 'lasso',
+                     method = 'robust',
+                     DML_method = 'DML2',
+                     k_fold = 1,
+                     penalty = list(c = 1.1)) {
+  #### Checking Arguments ####
+  checkmate::assertChoice(nuisance_estimaton, c("lasso","post-lasso","sqrt-lasso"))
+  checkmate::assertChoice(method, c('robust','partialling out'))
+  checkmate::assertChoice(DML_method, c('DML1','DML2'))
+  checkmate::assertIntegerish(k_fold, lower = 1)
+  checkmate::assertList(penalty)
+
   X <- as.matrix(data)
   S <- as.matrix(edges)
   n <- dim(X)[1]
   p <- dim(X)[2]
 
-
-
-  #### Checking Arguments ####
-
-  checkmate::assertChoice(nuisance_estimaton, c("lasso","post-lasso","sqrt-lasso"))
-  checkmate::assertChoice(method, c('robust','partialling out','root'))
-
-  if (dim(S)[2] != 2){
-    stop("Invalid argument: S has to be a matrix with 2 columns.")
-  }
+  checkmate::assertMatrix(S,ncols = 2)
+  checkmate::assertIntegerish(S,upper = p)
   if (any(S[,1]==S[,2])){
     stop("Invalid argument: Not a valid edge. The indices cant be identical.")
   }
-  if (!isTRUE(all.equal(as.vector(S), as.integer(S)))){
-    stop("Invalid argument: The indices have to be integers.")
-  }
-  if (max(as.integer(S)>p)){
-    stop("Invalid argument: At least one index is larger than the number of regressors.")
-  }
-  if (DML_method == 'DML2' & method == 'root'){
-    stop("Only partialling out is implemented for DML2.")
-  }
-
 
   #### K-fold partition ####
   num_drop <- n-k_fold*floor(n/k_fold) # number of indices to be added seperately
@@ -105,7 +91,6 @@ GGMtest2 <- function(data = X,
   #### General variables and score function: ####
 
   p1 <- dim(S)[1]  # number of estimations
-
 
   block1 <- unique(S[,1])
 
@@ -174,7 +159,6 @@ GGMtest2 <- function(data = X,
         }
 
         pred1[index,1:n2,num_fold] <- X[sample2_index,i]- X[sample2_index,-c(i,j)]%*%r1[-(j+c1)]
-
         pred2[index,1:n2,num_fold] <- X[sample2_index,j]- X[sample2_index,-c(i,j)]%*%r2 #j=k
 
         #### Estimator ####
@@ -184,8 +168,6 @@ GGMtest2 <- function(data = X,
           } else if (method == 'partialling out'){
             #partialling out (first order equivalent)
             beta1 <- stats::lm(pred1[index,1:n2,num_fold] ~ pred2[index,1:n2,num_fold])$coefficients[2]
-          } else if (method == 'root'){
-            beta1 <- stats::uniroot(function(x) mean(Score(x,X[sample2_index,j],pred1[index,1:n2,num_fold],pred2[index,1:n2,num_fold])),interval = c(root_range[1],root_range[2]))$root
           }
           beta_mat[index,num_fold] <- beta1
         }
@@ -331,12 +313,26 @@ GGMtest2 <- function(data = X,
 #' @param exp The corresponding exponent of the s-sparse sets.
 #'
 #' @return A list with the following components.
+#' \item{estimates}{A vector of point estimates.}
+#' \item{edge_list}{The matrix containing the corresponding edges (equal to input).}
+#' \item{pvalue_max}{P-Value of the maximum statistic.}
+#' \item{pvalue_sphere}{P-Value of the approx. Sphere.}
+#' \item{hyp_max}{`FALSE` if the hypthesis is rejected with the maximum statistic.}
+#' \item{hyp_sphere}{`FALSE` if the hypthesis is rejected with the approx. Sphere.}
+#' \item{vol_max}{Volume of the maximum statistic.}
+#' \item{vol_sphere}{Volume of  the approx. Sphere.}
+#' \item{quantiles}{Estimates quantiles.}
+#'
 #' @export
 
 create_CR <- function(model, null_hyp = 0, alpha = 0.05, B = 500, s = 1, exp = 1){
   #check arguments
   checkmate::assertClass(model,"GGMtest2")
+  checkmate::assertNumeric(null_hyp, min.len = 1)
   checkmate::assertNumber(alpha,lower = 0, upper = 1)
+  checkmate::assertIntegerish(B,lower = 1)
+  checkmate::assertIntegerish(s,lower = 1)
+  checkmate::assertIntegerish(exp, lower = 1)
 
   #specify parameters
   n <- model$additional_parameters$n
@@ -347,6 +343,7 @@ create_CR <- function(model, null_hyp = 0, alpha = 0.05, B = 500, s = 1, exp = 1
   if (length(null_hyp) == 1){
     beta_0 <- rep(null_hyp,p1)
   } else {
+    checkmate::assertNumeric(null_hyp, len = p1)
     beta_0 <- null_hyp
   }
 

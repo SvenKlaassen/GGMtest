@@ -65,7 +65,14 @@ patrick::with_parameters_test_that("Test different methods work similar over k-f
   {
     set.seed(42)
     n <- 2000; p <- 10
-    X <- MASS::mvrnorm(n=n, mu=rep(0,p), Sigma=diag(p))
+    Sigma <- diag(p)
+    c <- 0.3
+    for (i in 2:(p-1)){
+      for (j in (i+1):p){
+        Sigma[i,j] <- Sigma[j,i] <- c^(j-i)
+      }
+    }
+    X <- MASS::mvrnorm(n=n, mu=rep(0,p), Sigma=Sigma)
 
     edges <- matrix(c(rep(1,p-1),2:p),ncol = 2)
     model1 <- GGMtest2(data = X,
@@ -81,6 +88,7 @@ patrick::with_parameters_test_that("Test different methods work similar over k-f
                        DML_method = DML_method,
                        k_fold = 5)
     expect_equal(model1$estimates, model2$estimates,tolerance = 1e-1)
+    expect_false(all(model1$estimates == model2$estimates))
   }
 )
 
@@ -99,7 +107,14 @@ patrick::with_parameters_test_that("Hypothesis testing",
   {
     set.seed(42)
     n <- 500; p <- 10
-    X <- MASS::mvrnorm(n=n, mu=rep(0,p), Sigma=diag(p))
+    Sigma <- diag(p)
+    c <- 0.3
+    for (i in 2:(p-1)){
+      for (j in (i+1):p){
+        Sigma[i,j] <- Sigma[j,i] <- c^(j-i)
+      }
+    }
+    X <- MASS::mvrnorm(n=n, mu=rep(0,p), Sigma=Sigma)
 
     edges <- matrix(c(rep(1,p-1),2:p),ncol = 2)
     model <- GGMtest2(data = X,
